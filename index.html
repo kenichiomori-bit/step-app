@@ -12,9 +12,9 @@
       background: #f3f4f6;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       min-height: 100vh;
-      padding: 16px;
+      padding: 8px;
       box-sizing: border-box;
     }
 
@@ -23,7 +23,7 @@
       max-width: 420px;
       background: white;
       border-radius: 24px;
-      padding: 24px;
+      padding: 14px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       box-sizing: border-box;
     }
@@ -31,8 +31,8 @@
     h1 {
       text-align: center;
       margin-top: 0;
-      margin-bottom: 8px;
-      font-size: 32px;
+      margin-bottom: 4px;
+      font-size: 26px;
     }
 
     .subtitle {
@@ -50,7 +50,7 @@
     }
 
     .step {
-      font-size: 56px;
+      font-size: 42px;
       font-weight: bold;
     }
 
@@ -89,7 +89,7 @@
     }
 
     .big {
-      font-size: 42px;
+      font-size: 30px;
       font-weight: bold;
     }
 
@@ -103,8 +103,8 @@
     button {
       border: none;
       border-radius: 18px;
-      padding: 18px;
-      font-size: 22px;
+      padding: 14px;
+      font-size: 18px;
       font-weight: bold;
       cursor: pointer;
     }
@@ -142,11 +142,36 @@
 
     <div class="section">
       <div class="row">
+        <div class="label">ダークモード</div>
+        <button id="darkBtn" style="padding:8px 14px;font-size:14px;border-radius:12px;background:#111;color:#fff;">切替</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="row">
         <div class="label">テンポ</div>
         <div id="bpmValue" class="value">90 BPM</div>
       </div>
 
       <input id="bpm" type="range" min="60" max="140" value="90" />
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <div class="label">終了時間</div>
+        <div id="goalValue" class="value">10 分</div>
+      </div>
+
+      <input id="goalTime" type="range" min="5" max="60" value="10" />
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <div class="label">台の高さ</div>
+        <div id="stepHeightValue" class="value">10 cm</div>
+      </div>
+
+      <input id="stepHeight" type="range" min="10" max="20" step="5" value="10" />
     </div>
 
     <div class="timer">
@@ -181,6 +206,11 @@
       <div id="calorie" class="big">0 kcal</div>
     </div>
 
+    <div class="timer">
+      <div>累計運動時間</div>
+      <div id="history" class="big">0 分</div>
+    </div>
+
     <div class="buttons">
       <button id="startBtn" class="start">開始</button>
       <button id="resetBtn" class="reset">リセット</button>
@@ -201,12 +231,20 @@
     let timerInterval = null;
     let seconds = 0;
     let wakeLock = null;
+    let totalMinutes = Number(localStorage.getItem('totalMinutes') || 0);
+    historyEl.textContent = `${totalMinutes} 分`;
 
     const stepEl = document.getElementById('step');
     const bpmSlider = document.getElementById('bpm');
     const weightSlider = document.getElementById('weight');
     const weightValue = document.getElementById('weightValue');
     const soundSelect = document.getElementById('soundSelect');
+    const goalTimeSlider = document.getElementById('goalTime');
+    const goalValue = document.getElementById('goalValue');
+    const stepHeightSlider = document.getElementById('stepHeight');
+    const stepHeightValue = document.getElementById('stepHeightValue');
+    const historyEl = document.getElementById('history');
+    const darkBtn = document.getElementById('darkBtn');
     const soundValue = document.getElementById('soundValue');
     const bpmValue = document.getElementById('bpmValue');
     const timerEl = document.getElementById('timer');
@@ -257,9 +295,14 @@
 
       let mets = 4;
 
+      const stepHeight = Number(stepHeightSlider.value);
+
       if (bpm >= 80) mets = 5;
       if (bpm >= 100) mets = 6;
       if (bpm >= 120) mets = 7;
+
+      if (stepHeight === 15) mets += 0.8;
+      if (stepHeight === 20) mets += 1.5;
 
       const weight = Number(weightSlider.value);
       const hours = seconds / 3600;
@@ -285,6 +328,16 @@
 
       timerInterval = setInterval(() => {
         seconds++;
+        const goalSeconds = Number(goalTimeSlider.value) * 60;
+
+        if (seconds >= goalSeconds) {
+          alert('終了時間です！');
+          stopExercise();
+
+      totalMinutes += Math.floor(seconds / 60);
+      localStorage.setItem('totalMinutes', totalMinutes);
+      historyEl.textContent = `${totalMinutes} 分`;
+        }
         timerEl.textContent = formatTime(seconds);
         calculateCalories();
       }, 1000);
@@ -321,6 +374,29 @@
           wakeLock.release();
           wakeLock = null;
         }
+      }
+    });
+
+    goalTimeSlider.addEventListener('input', () => {
+      goalValue.textContent = `${goalTimeSlider.value} 分`;
+    });
+
+    stepHeightSlider.addEventListener('input', () => {
+      stepHeightValue.textContent = `${stepHeightSlider.value} cm`;
+      calculateCalories();
+    });
+
+    darkBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+
+      if (document.body.classList.contains('dark')) {
+        document.body.style.background = '#111';
+        document.querySelector('.card').style.background = '#222';
+        document.querySelector('.card').style.color = '#fff';
+      } else {
+        document.body.style.background = '#f3f4f6';
+        document.querySelector('.card').style.background = '#fff';
+        document.querySelector('.card').style.color = '#000';
       }
     });
 
