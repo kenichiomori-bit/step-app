@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>踏み台昇降リズムアプリ</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    .step-box {
+      background: #f9fafb;
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .step {
+      font-size: 56px;
+      font-weight: bold;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .label {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .value {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .timer,
+    .calorie {
+      background: #f9fafb;
+      border-radius: 18px;
+      padding: 18px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .big {
+      font-size: 42px;
+      font-weight: bold;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 18px;
+      padding: 18px;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .start {
+      background: black;
+      color: white;
+    }
+
+    .stop {
+      background: #ef4444;
+      color: white;
+    }
+
+    .reset {
+      background: #e5e7eb;
+    }
+
+    .note {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>踏み台昇降</h1>
+    <div class="subtitle">リズム・タイマー・消費カロリー</div>
+
+    <div class="step-box">
+      <div id="step" class="step">右 ↑</div>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <div class="label">テンポ</div>
+        <div id="bpmValue" class="value">90 BPM</div>
+      </div>
+
+      <input id="bpm" type="range" min="60" max="140" value="90" />
+    </div>
+
+    <div class="timer">
+      <div>経過時間</div>
+      <div id="timer" class="big">00:00</div>
+    </div>
+
+    <div class="calorie">
+      <div>消費カロリー（目安）</div>
+      <div id="calorie" class="big">0 kcal</div>
+    </div>
+
+    <div class="buttons">
+      <button id="startBtn" class="start">開始</button>
+      <button id="resetBtn" class="reset">リセット</button>
+    </div>
+
+    <div class="note">
+      体重88kg想定で概算表示しています。<br>
+      最初は80〜100 BPMくらいがおすすめです。
+    </div>
+  </div>
+
+  <script>
+    const steps = ['右 ↑', '左 ↑', '右 ↓', '左 ↓'];
+
+    let stepIndex = 0;
+    let running = false;
+    let stepInterval = null;
+    let timerInterval = null;
+    let seconds = 0;
+    let wakeLock = null;
+
+    const stepEl = document.getElementById('step');
+    const bpmSlider = document.getElementById('bpm');
+    const bpmValue = document.getElementById('bpmValue');
+    const timerEl = document.getElementById('timer');
+    const calorieEl = document.getElementById('calorie');
+    const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let audioContext;
+
+    function playBeep(accent = false) {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.value = accent ? 900 : 600;
+
+      gainNode.gain.value = 0.08;
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.08);
+    }
+
+    function formatTime(sec) {
+      const min = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${min}:${s}`;
+    }
+
+    function calculateCalories() {
+      const bpm = Number(bpmSlider.value);
+
+      let mets = 4;
+
+      if (bpm >= 80) mets = 5;
+      if (bpm >= 100) mets = 6;
+      if (bpm >= 120) mets = 7;
+
+      const weight = 88;
+      const hours = seconds / 3600;
+
+      const kcal = mets * weight * hours * 1.05;
+
+      calorieEl.textContent = `${Math.round(kcal)} kcal`;
+    }
+
+    function updateStep() {
+      stepIndex = (stepIndex + 1) % steps.length;
+      stepEl.textContent = steps[stepIndex];
+      playBeep(stepIndex === 0);
+    }
+
+    function startExercise() {
+      const bpm = Number(bpmSlider.value);
+      const interval = 60000 / bpm;
+
+      playBeep(true);
+
+      stepInterval = setInterval(updateStep, interval);
+
+      timerInterval = setInterval(() => {
+        seconds++;
+        timerEl.textContent = formatTime(seconds);
+        calculateCalories();
+      }, 1000);
+
+      running = true;
+      startBtn.textContent = '停止';
+      startBtn.className = 'stop';
+    }
+
+    function stopExercise() {
+      clearInterval(stepInterval);
+      clearInterval(timerInterval);
+
+      running = false;
+      startBtn.textContent = '開始';
+      startBtn.className = 'start';
+    }
+
+    startBtn.addEventListener('click', async () => {
+      if (!running) {
+        startExercise();
+
+        if ('wakeLock' in navigator) {
+          try {
+            wakeLock = await navigator.wakeLock.request('screen');
+          } catch (err) {
+            console.log('Wake Lock failed:', err);
+          }
+        }
+      } else {
+        stopExercise();
+
+        if (wakeLock) {
+          wakeLock.release();
+          wakeLock = null;
+        }
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      stopExercise();
+
+      stepIndex = 0;
+      seconds = 0;
+
+      stepEl.textContent = steps[0];
+      timerEl.textContent = '00:00';
+      calorieEl.textContent = '0 kcal';
+    });
+
+    bpmSlider.addEventListener('input', () => {
+      bpmValue.textContent = `${bpmSlider.value} BPM`;
+
+      if (running) {
+        stopExercise();
+        startExercise();
+      }
+    });
+  </script>
+</body>
+</html>
