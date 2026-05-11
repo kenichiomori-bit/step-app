@@ -154,6 +154,28 @@
       <div id="timer" class="big">00:00</div>
     </div>
 
+    <div class="section">
+      <div class="row">
+        <div class="label">体重</div>
+        <div id="weightValue" class="value">88 kg</div>
+      </div>
+
+      <input id="weight" type="range" min="40" max="140" value="88" />
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <div class="label">音</div>
+        <div id="soundValue" class="value">電子音</div>
+      </div>
+
+      <select id="soundSelect" style="width:100%; padding:12px; border-radius:12px; font-size:16px;">
+        <option value="beep">電子音</option>
+        <option value="click">クリック</option>
+        <option value="soft">やわらかい音</option>
+      </select>
+    </div>
+
     <div class="calorie">
       <div>消費カロリー（目安）</div>
       <div id="calorie" class="big">0 kcal</div>
@@ -182,6 +204,10 @@
 
     const stepEl = document.getElementById('step');
     const bpmSlider = document.getElementById('bpm');
+    const weightSlider = document.getElementById('weight');
+    const weightValue = document.getElementById('weightValue');
+    const soundSelect = document.getElementById('soundSelect');
+    const soundValue = document.getElementById('soundValue');
     const bpmValue = document.getElementById('bpmValue');
     const timerEl = document.getElementById('timer');
     const calorieEl = document.getElementById('calorie');
@@ -198,8 +224,18 @@
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
-      oscillator.type = 'sine';
-      oscillator.frequency.value = accent ? 900 : 600;
+      const soundType = soundSelect.value;
+
+      if (soundType === 'click') {
+        oscillator.type = 'square';
+        oscillator.frequency.value = accent ? 1200 : 800;
+      } else if (soundType === 'soft') {
+        oscillator.type = 'triangle';
+        oscillator.frequency.value = accent ? 700 : 500;
+      } else {
+        oscillator.type = 'sine';
+        oscillator.frequency.value = accent ? 900 : 600;
+      }
 
       gainNode.gain.value = 0.08;
 
@@ -225,7 +261,7 @@
       if (bpm >= 100) mets = 6;
       if (bpm >= 120) mets = 7;
 
-      const weight = 88;
+      const weight = Number(weightSlider.value);
       const hours = seconds / 3600;
 
       const kcal = mets * weight * hours * 1.05;
@@ -297,6 +333,16 @@
       stepEl.textContent = steps[0];
       timerEl.textContent = '00:00';
       calorieEl.textContent = '0 kcal';
+    });
+
+    weightSlider.addEventListener('input', () => {
+      weightValue.textContent = `${weightSlider.value} kg`;
+      calculateCalories();
+    });
+
+    soundSelect.addEventListener('change', () => {
+      soundValue.textContent = soundSelect.options[soundSelect.selectedIndex].text;
+      playBeep(true);
     });
 
     bpmSlider.addEventListener('input', () => {
