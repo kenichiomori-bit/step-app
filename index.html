@@ -390,14 +390,27 @@
     darkBtn.addEventListener('click', () => {
       document.body.classList.toggle('dark');
 
+      const card = document.querySelector('.card');
+      const boxes = document.querySelectorAll('.step-box, .timer, .calorie');
+
       if (document.body.classList.contains('dark')) {
         document.body.style.background = '#111';
-        document.querySelector('.card').style.background = '#222';
-        document.querySelector('.card').style.color = '#fff';
+        card.style.background = '#222';
+        card.style.color = '#fff';
+
+        boxes.forEach(box => {
+          box.style.background = '#333';
+          box.style.color = '#fff';
+        });
       } else {
         document.body.style.background = '#f3f4f6';
-        document.querySelector('.card').style.background = '#fff';
-        document.querySelector('.card').style.color = '#000';
+        card.style.background = '#fff';
+        card.style.color = '#000';
+
+        boxes.forEach(box => {
+          box.style.background = '#f9fafb';
+          box.style.color = '#000';
+        });
       }
     });
 
