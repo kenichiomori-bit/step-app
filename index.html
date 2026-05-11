@@ -232,7 +232,6 @@
     let seconds = 0;
     let wakeLock = null;
     let totalMinutes = Number(localStorage.getItem('totalMinutes') || 0);
-    historyEl.textContent = `${totalMinutes} 分`;
 
     const stepEl = document.getElementById('step');
     const bpmSlider = document.getElementById('bpm');
@@ -245,6 +244,8 @@
     const stepHeightValue = document.getElementById('stepHeightValue');
     const historyEl = document.getElementById('history');
     const darkBtn = document.getElementById('darkBtn');
+
+    historyEl.textContent = `${totalMinutes} 分`;
     const soundValue = document.getElementById('soundValue');
     const bpmValue = document.getElementById('bpmValue');
     const timerEl = document.getElementById('timer');
