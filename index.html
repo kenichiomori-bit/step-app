@@ -149,6 +149,26 @@
 
     <div class="section">
       <div class="row">
+        <div class="label">運動モード</div>
+        <div id="modeLabel" class="value">脂肪燃焼</div>
+      </div>
+
+      <select id="modeSelect" style="width:100%; padding:12px; border-radius:12px; font-size:16px;">
+        <option value="fatburn">脂肪燃焼</option>
+        <option value="fitness">体力向上</option>
+        <option value="hiit">HIIT</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <div class="label">現在フェーズ</div>
+        <div id="phaseLabel" class="value">待機中</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="row">
         <div class="label">テンポ</div>
         <div id="bpmValue" class="value">90 BPM</div>
       </div>
@@ -244,6 +264,9 @@
     const stepHeightValue = document.getElementById('stepHeightValue');
     const historyEl = document.getElementById('history');
     const darkBtn = document.getElementById('darkBtn');
+    const modeSelect = document.getElementById('modeSelect');
+    const modeLabel = document.getElementById('modeLabel');
+    const phaseLabel = document.getElementById('phaseLabel');
 
     historyEl.textContent = `${totalMinutes} 分`;
     const soundValue = document.getElementById('soundValue');
@@ -254,6 +277,53 @@
     const resetBtn = document.getElementById('resetBtn');
 
     let audioContext;
+
+    function getAutoBpm() {
+      const mode = modeSelect.value;
+      const goalSeconds = Number(goalTimeSlider.value) * 60;
+
+      if (mode === 'fatburn') {
+        if (seconds < goalSeconds * 0.15) {
+          phaseLabel.textContent = 'ウォームアップ';
+          return 80;
+        }
+        if (seconds < goalSeconds * 0.8) {
+          phaseLabel.textContent = '脂肪燃焼';
+          return 95;
+        }
+
+        phaseLabel.textContent = 'クールダウン';
+        return 75;
+      }
+
+      if (mode === 'fitness') {
+        if (seconds < goalSeconds * 0.15) {
+          phaseLabel.textContent = 'ウォームアップ';
+          return 85;
+        }
+        if (seconds < goalSeconds * 0.8) {
+          phaseLabel.textContent = '体力向上';
+          return 110;
+        }
+
+        phaseLabel.textContent = 'クールダウン';
+        return 80;
+      }
+
+      if (mode === 'hiit') {
+        const hiitPhase = Math.floor(seconds / 30) % 2;
+
+        if (hiitPhase === 0) {
+          phaseLabel.textContent = '高速';
+          return 125;
+        }
+
+        phaseLabel.textContent = '低速回復';
+        return 75;
+      }
+
+      return Number(bpmSlider.value);
+    }
 
     function playBeep(accent = false) {
       if (!audioContext) {
@@ -276,7 +346,7 @@
         oscillator.frequency.value = accent ? 900 : 600;
       }
 
-      gainNode.gain.value = 0.08;
+      gainNode.gain.value = 0.14;
 
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
@@ -320,7 +390,10 @@
     }
 
     function startExercise() {
-      const bpm = Number(bpmSlider.value);
+      const bpm = getAutoBpm();
+      bpmSlider.value = bpm;
+      bpmValue.textContent = `${bpm} BPM`;
+
       const interval = 60000 / bpm;
 
       playBeep(true);
@@ -340,6 +413,18 @@
       historyEl.textContent = `${totalMinutes} 分`;
         }
         timerEl.textContent = formatTime(seconds);
+        const autoBpm = getAutoBpm();
+
+        if (Number(bpmSlider.value) !== autoBpm) {
+          clearInterval(stepInterval);
+
+          bpmSlider.value = autoBpm;
+          bpmValue.textContent = `${autoBpm} BPM`;
+
+          const newInterval = 60000 / autoBpm;
+
+          stepInterval = setInterval(updateStep, newInterval);
+        }
         calculateCalories();
       }, 1000);
 
@@ -428,6 +513,10 @@
     weightSlider.addEventListener('input', () => {
       weightValue.textContent = `${weightSlider.value} kg`;
       calculateCalories();
+    });
+
+    modeSelect.addEventListener('change', () => {
+      modeLabel.textContent = modeSelect.options[modeSelect.selectedIndex].text;
     });
 
     soundSelect.addEventListener('change', () => {
