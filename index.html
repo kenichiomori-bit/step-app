@@ -231,6 +231,21 @@
       <div id="history" class="big">0 分</div>
     </div>
 
+    <div class="timer">
+      <div>今日の運動</div>
+      <div id="todayHistory" class="big">0 分</div>
+    </div>
+
+    <div class="timer">
+      <div>連続記録</div>
+      <div id="streak" class="big">0 日</div>
+    </div>
+
+    <div class="timer">
+      <div>累計消費カロリー</div>
+      <div id="totalCalories" class="big">0 kcal</div>
+    </div>
+
     <div class="buttons">
       <button id="startBtn" class="start">開始</button>
       <button id="resetBtn" class="reset">リセット</button>
@@ -252,6 +267,35 @@
     let seconds = 0;
     let wakeLock = null;
     let totalMinutes = Number(localStorage.getItem('totalMinutes') || 0);
+    let totalCalories = Number(localStorage.getItem('totalCalories') || 0);
+
+    const savedBpm = localStorage.getItem('savedBpm');
+    const savedWeight = localStorage.getItem('savedWeight');
+    const savedGoal = localStorage.getItem('savedGoal');
+    const savedHeight = localStorage.getItem('savedHeight');
+    const savedMode = localStorage.getItem('savedMode');
+    const savedSound = localStorage.getItem('savedSound');
+    const savedDark = localStorage.getItem('savedDark');
+
+    if (savedBpm) bpmSlider.value = savedBpm;
+    if (savedWeight) weightSlider.value = savedWeight;
+    if (savedGoal) goalTimeSlider.value = savedGoal;
+    if (savedHeight) stepHeightSlider.value = savedHeight;
+    if (savedMode) modeSelect.value = savedMode;
+    if (savedSound) soundSelect.value = savedSound;
+
+    bpmValue.textContent = `${bpmSlider.value} BPM`;
+    weightValue.textContent = `${weightSlider.value} kg`;
+    goalValue.textContent = `${goalTimeSlider.value} 分`;
+    stepHeightValue.textContent = `${stepHeightSlider.value} cm`;
+    modeLabel.textContent = modeSelect.options[modeSelect.selectedIndex].text;
+    soundValue.textContent = soundSelect.options[soundSelect.selectedIndex].text;
+
+    const todayKey = new Date().toISOString().slice(0,10);
+    let todayMinutes = Number(localStorage.getItem(`today-${todayKey}`) || 0);
+
+    let streak = Number(localStorage.getItem('streak') || 0);
+    let lastDate = localStorage.getItem('lastWorkoutDate') || '';
 
     const stepEl = document.getElementById('step');
     const bpmSlider = document.getElementById('bpm');
@@ -264,11 +308,17 @@
     const stepHeightValue = document.getElementById('stepHeightValue');
     const historyEl = document.getElementById('history');
     const darkBtn = document.getElementById('darkBtn');
+    const todayHistoryEl = document.getElementById('todayHistory');
+    const streakEl = document.getElementById('streak');
+    const totalCaloriesEl = document.getElementById('totalCalories');
     const modeSelect = document.getElementById('modeSelect');
     const modeLabel = document.getElementById('modeLabel');
     const phaseLabel = document.getElementById('phaseLabel');
 
     historyEl.textContent = `${totalMinutes} 分`;
+    todayHistoryEl.textContent = `${todayMinutes} 分`;
+    streakEl.textContent = `${streak} 日`;
+    totalCaloriesEl.textContent = `${Math.round(totalCalories)} kcal`;
     const soundValue = document.getElementById('soundValue');
     const bpmValue = document.getElementById('bpmValue');
     const timerEl = document.getElementById('timer');
@@ -408,9 +458,38 @@
           alert('終了時間です！');
           stopExercise();
 
-      totalMinutes += Math.floor(seconds / 60);
+      const addedMinutes = Math.floor(seconds / 60);
+      totalMinutes += addedMinutes;
+      todayMinutes += addedMinutes;
+
       localStorage.setItem('totalMinutes', totalMinutes);
+      localStorage.setItem(`today-${todayKey}`, todayMinutes);
+
       historyEl.textContent = `${totalMinutes} 分`;
+      todayHistoryEl.textContent = `${todayMinutes} 分`;
+
+      const currentCalories = Number(calorieEl.textContent.replace(/[^0-9]/g, '')) || 0;
+      totalCalories += currentCalories;
+
+      localStorage.setItem('totalCalories', totalCalories);
+      totalCaloriesEl.textContent = `${Math.round(totalCalories)} kcal`;
+
+      const todayDate = new Date(todayKey);
+      const previousDate = new Date(lastDate || todayKey);
+      const diffDays = Math.floor((todayDate - previousDate) / (1000 * 60 * 60 * 24));
+
+      if (!lastDate) {
+        streak = 1;
+      } else if (diffDays === 1) {
+        streak += 1;
+      } else if (diffDays > 1) {
+        streak = 1;
+      }
+
+      localStorage.setItem('streak', streak);
+      localStorage.setItem('lastWorkoutDate', todayKey);
+
+      streakEl.textContent = `${streak} 日`;
         }
         timerEl.textContent = formatTime(seconds);
         const autoBpm = getAutoBpm();
@@ -465,12 +544,32 @@
 
     goalTimeSlider.addEventListener('input', () => {
       goalValue.textContent = `${goalTimeSlider.value} 分`;
+      localStorage.setItem('savedGoal', goalTimeSlider.value);
     });
 
     stepHeightSlider.addEventListener('input', () => {
       stepHeightValue.textContent = `${stepHeightSlider.value} cm`;
+      localStorage.setItem('savedHeight', stepHeightSlider.value);
       calculateCalories();
     });
+
+    if (savedDark === 'true') {
+      document.body.classList.add('dark');
+
+      const card = document.querySelector('.card');
+      const boxes = document.querySelectorAll('.step-box, .timer, .calorie');
+
+      document.body.style.background = '#111';
+      card.style.background = '#222';
+      card.style.color = '#fff';
+
+      boxes.forEach(box => {
+          box.style.background = '#333';
+          box.style.color = '#fff';
+        });
+
+        localStorage.setItem('savedDark', 'true');
+    }
 
     darkBtn.addEventListener('click', () => {
       document.body.classList.toggle('dark');
@@ -496,6 +595,8 @@
           box.style.background = '#f9fafb';
           box.style.color = '#000';
         });
+
+        localStorage.setItem('savedDark', 'false');
       }
     });
 
@@ -512,20 +613,24 @@
 
     weightSlider.addEventListener('input', () => {
       weightValue.textContent = `${weightSlider.value} kg`;
+      localStorage.setItem('savedWeight', weightSlider.value);
       calculateCalories();
     });
 
     modeSelect.addEventListener('change', () => {
       modeLabel.textContent = modeSelect.options[modeSelect.selectedIndex].text;
+      localStorage.setItem('savedMode', modeSelect.value);
     });
 
     soundSelect.addEventListener('change', () => {
       soundValue.textContent = soundSelect.options[soundSelect.selectedIndex].text;
+      localStorage.setItem('savedSound', soundSelect.value);
       playBeep(true);
     });
 
     bpmSlider.addEventListener('input', () => {
       bpmValue.textContent = `${bpmSlider.value} BPM`;
+      localStorage.setItem('savedBpm', bpmSlider.value);
 
       if (running) {
         stopExercise();
