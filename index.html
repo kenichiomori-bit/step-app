@@ -140,9 +140,43 @@
       <div id="step" class="step">右 ↑</div>
     </div>
 
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div class="timer" style="margin-bottom:0; padding:14px;">
+        <div style="font-size:13px; color:#666;">経過時間</div>
+        <div id="timer" class="big">00:00</div>
+      </div>
+
+      <div class="calorie" style="margin-bottom:0; padding:14px;">
+        <div style="font-size:13px; color:#666;">消費kcal</div>
+        <div id="calorie" class="big">0 kcal</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div class="timer" style="margin-bottom:0; padding:14px;">
+        <div style="font-size:13px; color:#666;">現在フェーズ</div>
+        <div id="phaseLabel" class="big" style="font-size:20px;">待機中</div>
+      </div>
+
+      <div class="timer" style="margin-bottom:0; padding:14px;">
+        <div style="font-size:13px; color:#666;">累計運動</div>
+        <div id="history" class="big">0 分</div>
+      </div>
+    </div>
+
+    <div class="buttons" style="margin-top:0; margin-bottom:18px;">
+      <button id="startBtn" class="start">開始</button>
+      <button id="resetBtn" class="reset">リセット</button>
+    </div>
+
+    <details style="margin-bottom:16px;">
+      <summary style="font-size:18px;font-weight:bold;cursor:pointer;">設定を開く</summary>
+
+      <div style="margin-top:16px;"></div>
+
     <div class="section">
       <div class="row">
-        <div class="label">ダークモード</div>
+        <div class="label">ダークモード</div></div>
         <button id="darkBtn" style="padding:8px 14px;font-size:14px;border-radius:12px;background:#111;color:#fff;">切替</button>
       </div>
     </div>
@@ -161,11 +195,7 @@
       </select>
     </div>
 
-    <div class="section">
-      <div class="row">
-        <div class="label">現在フェーズ</div>
-        <div id="phaseLabel" class="value">待機中</div>
-      </div>
+    
     </div>
 
     <div class="section">
@@ -195,10 +225,7 @@
       <input id="stepHeight" type="range" min="10" max="20" step="5" value="10" />
     </div>
 
-    <div class="timer">
-      <div>経過時間</div>
-      <div id="timer" class="big">00:00</div>
-    </div>
+    
 
     <div class="section">
       <div class="row">
@@ -222,15 +249,9 @@
       </select>
     </div>
 
-    <div class="calorie">
-      <div>消費カロリー（目安）</div>
-      <div id="calorie" class="big">0 kcal</div>
-    </div>
+    
 
-    <div class="timer">
-      <div>累計運動時間</div>
-      <div id="history" class="big">0 分</div>
-    </div>
+    
 
     <div class="timer">
       <div>今日の運動</div>
@@ -246,6 +267,8 @@
       <div>累計消費カロリー</div>
       <div id="totalCalories" class="big">0 kcal</div>
     </div>
+
+    </details>
 
     <div class="buttons">
       <button id="startBtn" class="start">開始</button>
