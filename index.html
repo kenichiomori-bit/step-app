@@ -154,10 +154,11 @@
       </div>
 
       <select id="modeSelect" style="width:100%; padding:12px; border-radius:12px; font-size:16px;">
-        <option value="fatburn">脂肪燃焼</option>
-        <option value="fitness">体力向上</option>
-        <option value="hiit">HIIT</option>
-      </select>
+  <option value="fatburn">脂肪燃焼</option>
+  <option value="fitness">体力向上</option>
+  <option value="hiit">HIIT</option>
+  <option value="manual">固定BPM</option>
+</select>
     </div>
 
     <div class="section">
@@ -279,51 +280,58 @@
     let audioContext;
 
     function getAutoBpm() {
-      const mode = modeSelect.value;
-      const goalSeconds = Number(goalTimeSlider.value) * 60;
+  const mode = modeSelect.value;
+  const goalSeconds = Number(goalTimeSlider.value) * 60;
 
-      if (mode === 'fatburn') {
-        if (seconds < goalSeconds * 0.15) {
-          phaseLabel.textContent = 'ウォームアップ';
-          return 80;
-        }
-        if (seconds < goalSeconds * 0.8) {
-          phaseLabel.textContent = '脂肪燃焼';
-          return 95;
-        }
+  if (mode === 'manual') {
+    phaseLabel.textContent = '固定テンポ';
+    return Number(bpmSlider.value);
+  }
 
-        phaseLabel.textContent = 'クールダウン';
-        return 75;
-      }
-
-      if (mode === 'fitness') {
-        if (seconds < goalSeconds * 0.15) {
-          phaseLabel.textContent = 'ウォームアップ';
-          return 85;
-        }
-        if (seconds < goalSeconds * 0.8) {
-          phaseLabel.textContent = '体力向上';
-          return 110;
-        }
-
-        phaseLabel.textContent = 'クールダウン';
-        return 80;
-      }
-
-      if (mode === 'hiit') {
-        const hiitPhase = Math.floor(seconds / 30) % 2;
-
-        if (hiitPhase === 0) {
-          phaseLabel.textContent = '高速';
-          return 125;
-        }
-
-        phaseLabel.textContent = '低速回復';
-        return 75;
-      }
-
-      return Number(bpmSlider.value);
+  if (mode === 'fatburn') {
+    if (seconds < goalSeconds * 0.15) {
+      phaseLabel.textContent = 'ウォームアップ';
+      return 80;
     }
+
+    if (seconds < goalSeconds * 0.8) {
+      phaseLabel.textContent = '脂肪燃焼';
+      return 95;
+    }
+
+    phaseLabel.textContent = 'クールダウン';
+    return 75;
+  }
+
+  if (mode === 'fitness') {
+    if (seconds < goalSeconds * 0.15) {
+      phaseLabel.textContent = 'ウォームアップ';
+      return 85;
+    }
+
+    if (seconds < goalSeconds * 0.8) {
+      phaseLabel.textContent = '体力向上';
+      return 110;
+    }
+
+    phaseLabel.textContent = 'クールダウン';
+    return 80;
+  }
+
+  if (mode === 'hiit') {
+    const hiitPhase = Math.floor(seconds / 30) % 2;
+
+    if (hiitPhase === 0) {
+      phaseLabel.textContent = '高速';
+      return 125;
+    }
+
+    phaseLabel.textContent = '低速回復';
+    return 75;
+  }
+
+  return Number(bpmSlider.value);
+}
 
     function playBeep(accent = false) {
       if (!audioContext) {
@@ -525,13 +533,13 @@
     });
 
     bpmSlider.addEventListener('input', () => {
-      bpmValue.textContent = `${bpmSlider.value} BPM`;
+  bpmValue.textContent = `${bpmSlider.value} BPM`;
 
-      if (running) {
-        stopExercise();
-        startExercise();
-      }
-    });
+  if (modeSelect.value === 'manual' && running) {
+    stopExercise();
+    startExercise();
+  }
+});
   </script>
 </body>
 </html>
