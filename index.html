@@ -157,7 +157,6 @@
         <option value="fatburn">脂肪燃焼</option>
         <option value="fitness">体力向上</option>
         <option value="hiit">HIIT</option>
-        <option value="manual">固定BPM</option>
       </select>
     </div>
 
@@ -371,11 +370,6 @@
 
         phaseLabel.textContent = '低速回復';
         return 75;
-      }
-
-      if (mode === 'manual') {
-        phaseLabel.textContent = '固定テンポ';
-        return Number(bpmSlider.value);
       }
 
       return Number(bpmSlider.value);
