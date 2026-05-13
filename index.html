@@ -14,16 +14,16 @@
       justify-content: center;
       align-items: flex-start;
       min-height: 100vh;
-      padding: 10px;
+      padding: 8px;
       box-sizing: border-box;
     }
 
     .card {
       width: 100%;
-      max-width: 520px;
+      max-width: 420px;
       background: white;
       border-radius: 24px;
-      padding: 16px;
+      padding: 14px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       box-sizing: border-box;
     }
@@ -32,30 +32,30 @@
       text-align: center;
       margin-top: 0;
       margin-bottom: 4px;
-      font-size: 28px;
+      font-size: 26px;
     }
 
     .subtitle {
       text-align: center;
       color: #666;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     .step-box {
       background: #f9fafb;
-      border-radius: 22px;
-      padding: 34px 20px;
+      border-radius: 20px;
+      padding: 30px;
       text-align: center;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     .step {
-      font-size: 48px;
+      font-size: 42px;
       font-weight: bold;
     }
 
     .section {
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
 
     .row {
@@ -66,7 +66,7 @@
     }
 
     .label {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: bold;
     }
 
@@ -79,28 +79,17 @@
       width: 100%;
     }
 
-    .grid-status {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .info-box {
+    .timer,
+    .calorie {
       background: #f9fafb;
       border-radius: 18px;
-      padding: 16px;
+      padding: 18px;
       text-align: center;
-    }
-
-    .info-title {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 8px;
+      margin-bottom: 16px;
     }
 
     .big {
-      font-size: 28px;
+      font-size: 30px;
       font-weight: bold;
     }
 
@@ -140,22 +129,10 @@
       line-height: 1.6;
       margin-top: 18px;
     }
-
-    @media (max-width: 480px) {
-      .grid-status {
-        grid-template-columns: 1fr;
-      }
-
-      .step {
-        font-size: 42px;
-      }
-    }
   </style>
 </head>
-
 <body>
   <div class="card">
-
     <h1>踏み台昇降</h1>
     <div class="subtitle">リズム・タイマー・消費カロリー</div>
 
@@ -166,13 +143,7 @@
     <div class="section">
       <div class="row">
         <div class="label">ダークモード</div>
-
-        <button
-          id="darkBtn"
-          style="padding:8px 14px;font-size:14px;border-radius:12px;background:#111;color:#fff;"
-        >
-          切替
-        </button>
+        <button id="darkBtn" style="padding:8px 14px;font-size:14px;border-radius:12px;background:#111;color:#fff;">切替</button>
       </div>
     </div>
 
@@ -182,15 +153,18 @@
         <div id="modeLabel" class="value">脂肪燃焼</div>
       </div>
 
-      <select
-        id="modeSelect"
-        style="width:100%; padding:12px; border-radius:12px; font-size:16px;"
-      >
+      <select id="modeSelect" style="width:100%; padding:12px; border-radius:12px; font-size:16px;">
         <option value="fatburn">脂肪燃焼</option>
         <option value="fitness">体力向上</option>
         <option value="hiit">HIIT</option>
-        <option value="manual">固定BPM</option>
       </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <div class="label">現在フェーズ</div>
+        <div id="phaseLabel" class="value">待機中</div>
+      </div>
     </div>
 
     <div class="section">
@@ -217,14 +191,12 @@
         <div id="stepHeightValue" class="value">10 cm</div>
       </div>
 
-      <input
-        id="stepHeight"
-        type="range"
-        min="10"
-        max="20"
-        step="5"
-        value="10"
-      />
+      <input id="stepHeight" type="range" min="10" max="20" step="5" value="10" />
+    </div>
+
+    <div class="timer">
+      <div>経過時間</div>
+      <div id="timer" class="big">00:00</div>
     </div>
 
     <div class="section">
@@ -242,38 +214,21 @@
         <div id="soundValue" class="value">電子音</div>
       </div>
 
-      <select
-        id="soundSelect"
-        style="width:100%; padding:12px; border-radius:12px; font-size:16px;"
-      >
+      <select id="soundSelect" style="width:100%; padding:12px; border-radius:12px; font-size:16px;">
         <option value="beep">電子音</option>
         <option value="click">クリック</option>
         <option value="soft">やわらかい音</option>
       </select>
     </div>
 
-    <div class="grid-status">
+    <div class="calorie">
+      <div>消費カロリー（目安）</div>
+      <div id="calorie" class="big">0 kcal</div>
+    </div>
 
-      <div class="info-box">
-        <div class="info-title">経過時間</div>
-        <div id="timer" class="big">00:00</div>
-      </div>
-
-      <div class="info-box">
-        <div class="info-title">消費カロリー</div>
-        <div id="calorie" class="big">0 kcal</div>
-      </div>
-
-      <div class="info-box">
-        <div class="info-title">累計運動時間</div>
-        <div id="history" class="big">0 分</div>
-      </div>
-
-      <div class="info-box">
-        <div class="info-title">現在フェーズ</div>
-        <div id="phaseLabel" class="big">待機中</div>
-      </div>
-
+    <div class="timer">
+      <div>累計運動時間</div>
+      <div id="history" class="big">0 分</div>
     </div>
 
     <div class="buttons">
@@ -285,7 +240,6 @@
       体重88kg想定で概算表示しています。<br>
       最初は80〜100 BPMくらいがおすすめです。
     </div>
-
   </div>
 
   <script>
@@ -297,63 +251,42 @@
     let timerInterval = null;
     let seconds = 0;
     let wakeLock = null;
-
-    let totalMinutes = Number(
-      localStorage.getItem('totalMinutes') || 0
-    );
+    let totalMinutes = Number(localStorage.getItem('totalMinutes') || 0);
 
     const stepEl = document.getElementById('step');
     const bpmSlider = document.getElementById('bpm');
-    const bpmValue = document.getElementById('bpmValue');
-
-    const goalTimeSlider = document.getElementById('goalTime');
-    const goalValue = document.getElementById('goalValue');
-
-    const stepHeightSlider = document.getElementById('stepHeight');
-    const stepHeightValue =
-      document.getElementById('stepHeightValue');
-
     const weightSlider = document.getElementById('weight');
     const weightValue = document.getElementById('weightValue');
-
     const soundSelect = document.getElementById('soundSelect');
-    const soundValue = document.getElementById('soundValue');
-
+    const goalTimeSlider = document.getElementById('goalTime');
+    const goalValue = document.getElementById('goalValue');
+    const stepHeightSlider = document.getElementById('stepHeight');
+    const stepHeightValue = document.getElementById('stepHeightValue');
+    const historyEl = document.getElementById('history');
+    const darkBtn = document.getElementById('darkBtn');
     const modeSelect = document.getElementById('modeSelect');
     const modeLabel = document.getElementById('modeLabel');
-
     const phaseLabel = document.getElementById('phaseLabel');
 
+    historyEl.textContent = `${totalMinutes} 分`;
+    const soundValue = document.getElementById('soundValue');
+    const bpmValue = document.getElementById('bpmValue');
     const timerEl = document.getElementById('timer');
     const calorieEl = document.getElementById('calorie');
-    const historyEl = document.getElementById('history');
-
     const startBtn = document.getElementById('startBtn');
     const resetBtn = document.getElementById('resetBtn');
-    const darkBtn = document.getElementById('darkBtn');
-
-    historyEl.textContent = `${totalMinutes} 分`;
 
     let audioContext;
 
     function getAutoBpm() {
-
       const mode = modeSelect.value;
-      const goalSeconds =
-        Number(goalTimeSlider.value) * 60;
-
-      if (mode === 'manual') {
-        phaseLabel.textContent = '固定テンポ';
-        return Number(bpmSlider.value);
-      }
+      const goalSeconds = Number(goalTimeSlider.value) * 60;
 
       if (mode === 'fatburn') {
-
         if (seconds < goalSeconds * 0.15) {
           phaseLabel.textContent = 'ウォームアップ';
           return 80;
         }
-
         if (seconds < goalSeconds * 0.8) {
           phaseLabel.textContent = '脂肪燃焼';
           return 95;
@@ -364,12 +297,10 @@
       }
 
       if (mode === 'fitness') {
-
         if (seconds < goalSeconds * 0.15) {
           phaseLabel.textContent = 'ウォームアップ';
           return 85;
         }
-
         if (seconds < goalSeconds * 0.8) {
           phaseLabel.textContent = '体力向上';
           return 110;
@@ -380,9 +311,7 @@
       }
 
       if (mode === 'hiit') {
-
-        const hiitPhase =
-          Math.floor(seconds / 30) % 2;
+        const hiitPhase = Math.floor(seconds / 30) % 2;
 
         if (hiitPhase === 0) {
           phaseLabel.textContent = '高速';
@@ -397,73 +326,47 @@
     }
 
     function playBeep(accent = false) {
-
       if (!audioContext) {
-        audioContext =
-          new (window.AudioContext ||
-          window.webkitAudioContext)();
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
 
-      const oscillator =
-        audioContext.createOscillator();
-
-      const gainNode =
-        audioContext.createGain();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
 
       const soundType = soundSelect.value;
 
       if (soundType === 'click') {
-
         oscillator.type = 'square';
-        oscillator.frequency.value =
-          accent ? 1200 : 800;
-
+        oscillator.frequency.value = accent ? 1200 : 800;
       } else if (soundType === 'soft') {
-
         oscillator.type = 'triangle';
-        oscillator.frequency.value =
-          accent ? 700 : 500;
-
+        oscillator.frequency.value = accent ? 700 : 500;
       } else {
-
         oscillator.type = 'sine';
-        oscillator.frequency.value =
-          accent ? 900 : 600;
+        oscillator.frequency.value = accent ? 900 : 600;
       }
 
-      gainNode.gain.value = 0.18;
+      gainNode.gain.value = 0.14;
 
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
 
       oscillator.start();
-
-      oscillator.stop(
-        audioContext.currentTime + 0.08
-      );
+      oscillator.stop(audioContext.currentTime + 0.08);
     }
 
     function formatTime(sec) {
-
-      const min = String(
-        Math.floor(sec / 60)
-      ).padStart(2, '0');
-
-      const s = String(
-        sec % 60
-      ).padStart(2, '0');
-
+      const min = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
       return `${min}:${s}`;
     }
 
     function calculateCalories() {
-
       const bpm = Number(bpmSlider.value);
 
       let mets = 4;
 
-      const stepHeight =
-        Number(stepHeightSlider.value);
+      const stepHeight = Number(stepHeightSlider.value);
 
       if (bpm >= 80) mets = 5;
       if (bpm >= 100) mets = 6;
@@ -472,298 +375,163 @@
       if (stepHeight === 15) mets += 0.8;
       if (stepHeight === 20) mets += 1.5;
 
-      const weight =
-        Number(weightSlider.value);
-
+      const weight = Number(weightSlider.value);
       const hours = seconds / 3600;
 
-      const kcal =
-        mets * weight * hours * 1.05;
+      const kcal = mets * weight * hours * 1.05;
 
-      calorieEl.textContent =
-        `${Math.round(kcal)} kcal`;
+      calorieEl.textContent = `${Math.round(kcal)} kcal`;
     }
 
     function updateStep() {
-
-      stepIndex =
-        (stepIndex + 1) % steps.length;
-
-      stepEl.textContent =
-        steps[stepIndex];
-
+      stepIndex = (stepIndex + 1) % steps.length;
+      stepEl.textContent = steps[stepIndex];
       playBeep(stepIndex === 0);
     }
 
-    function restartStepInterval(bpm) {
-
-      clearInterval(stepInterval);
+    function startExercise() {
+      const bpm = getAutoBpm();
+      bpmSlider.value = bpm;
+      bpmValue.textContent = `${bpm} BPM`;
 
       const interval = 60000 / bpm;
 
-      stepInterval =
-        setInterval(updateStep, interval);
-    }
-
-    function startExercise() {
-
-      const bpm = getAutoBpm();
-
-      bpmValue.textContent =
-        `${bpm} BPM`;
-
-      restartStepInterval(bpm);
-
       playBeep(true);
 
+      stepInterval = setInterval(updateStep, interval);
+
       timerInterval = setInterval(() => {
-
         seconds++;
-
-        timerEl.textContent =
-          formatTime(seconds);
-
-        const autoBpm = getAutoBpm();
-
-        bpmValue.textContent =
-          `${autoBpm} BPM`;
-
-        if (
-          modeSelect.value !== 'manual'
-        ) {
-          bpmSlider.value = autoBpm;
-        }
-
-        restartStepInterval(autoBpm);
-
-        calculateCalories();
-
-        const goalSeconds =
-          Number(goalTimeSlider.value) * 60;
+        const goalSeconds = Number(goalTimeSlider.value) * 60;
 
         if (seconds >= goalSeconds) {
-
           alert('終了時間です！');
-
-          totalMinutes +=
-            Math.floor(seconds / 60);
-
-          localStorage.setItem(
-            'totalMinutes',
-            totalMinutes
-          );
-
-          historyEl.textContent =
-            `${totalMinutes} 分`;
-
           stopExercise();
-        }
 
+      totalMinutes += Math.floor(seconds / 60);
+      localStorage.setItem('totalMinutes', totalMinutes);
+      historyEl.textContent = `${totalMinutes} 分`;
+        }
+        timerEl.textContent = formatTime(seconds);
+        const autoBpm = getAutoBpm();
+
+        if (Number(bpmSlider.value) !== autoBpm) {
+          clearInterval(stepInterval);
+
+          bpmSlider.value = autoBpm;
+          bpmValue.textContent = `${autoBpm} BPM`;
+
+          const newInterval = 60000 / autoBpm;
+
+          stepInterval = setInterval(updateStep, newInterval);
+        }
+        calculateCalories();
       }, 1000);
 
       running = true;
-
       startBtn.textContent = '停止';
       startBtn.className = 'stop';
     }
 
     function stopExercise() {
-
       clearInterval(stepInterval);
       clearInterval(timerInterval);
 
       running = false;
-
       startBtn.textContent = '開始';
       startBtn.className = 'start';
     }
 
-    startBtn.addEventListener(
-      'click',
-      async () => {
+    startBtn.addEventListener('click', async () => {
+      if (!running) {
+        startExercise();
 
-        if (!running) {
-
-          startExercise();
-
-          if ('wakeLock' in navigator) {
-
-            try {
-
-              wakeLock =
-                await navigator
-                  .wakeLock
-                  .request('screen');
-
-            } catch (err) {
-
-              console.log(
-                'Wake Lock failed:',
-                err
-              );
-            }
-          }
-
-        } else {
-
-          stopExercise();
-
-          if (wakeLock) {
-
-            wakeLock.release();
-
-            wakeLock = null;
+        if ('wakeLock' in navigator) {
+          try {
+            wakeLock = await navigator.wakeLock.request('screen');
+          } catch (err) {
+            console.log('Wake Lock failed:', err);
           }
         }
-      }
-    );
-
-    resetBtn.addEventListener(
-      'click',
-      () => {
-
+      } else {
         stopExercise();
 
-        stepIndex = 0;
-        seconds = 0;
-
-        stepEl.textContent = steps[0];
-
-        timerEl.textContent = '00:00';
-
-        calorieEl.textContent = '0 kcal';
-
-        phaseLabel.textContent = '待機中';
-      }
-    );
-
-    bpmSlider.addEventListener(
-      'input',
-      () => {
-
-        bpmValue.textContent =
-          `${bpmSlider.value} BPM`;
-
-        if (
-          modeSelect.value === 'manual' &&
-          running
-        ) {
-
-          restartStepInterval(
-            Number(bpmSlider.value)
-          );
+        if (wakeLock) {
+          wakeLock.release();
+          wakeLock = null;
         }
       }
-    );
+    });
 
-    goalTimeSlider.addEventListener(
-      'input',
-      () => {
+    goalTimeSlider.addEventListener('input', () => {
+      goalValue.textContent = `${goalTimeSlider.value} 分`;
+    });
 
-        goalValue.textContent =
-          `${goalTimeSlider.value} 分`;
+    stepHeightSlider.addEventListener('input', () => {
+      stepHeightValue.textContent = `${stepHeightSlider.value} cm`;
+      calculateCalories();
+    });
+
+    darkBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+
+      const card = document.querySelector('.card');
+      const boxes = document.querySelectorAll('.step-box, .timer, .calorie');
+
+      if (document.body.classList.contains('dark')) {
+        document.body.style.background = '#111';
+        card.style.background = '#222';
+        card.style.color = '#fff';
+
+        boxes.forEach(box => {
+          box.style.background = '#333';
+          box.style.color = '#fff';
+        });
+      } else {
+        document.body.style.background = '#f3f4f6';
+        card.style.background = '#fff';
+        card.style.color = '#000';
+
+        boxes.forEach(box => {
+          box.style.background = '#f9fafb';
+          box.style.color = '#000';
+        });
       }
-    );
+    });
 
-    stepHeightSlider.addEventListener(
-      'input',
-      () => {
+    resetBtn.addEventListener('click', () => {
+      stopExercise();
 
-        stepHeightValue.textContent =
-          `${stepHeightSlider.value} cm`;
+      stepIndex = 0;
+      seconds = 0;
 
-        calculateCalories();
+      stepEl.textContent = steps[0];
+      timerEl.textContent = '00:00';
+      calorieEl.textContent = '0 kcal';
+    });
+
+    weightSlider.addEventListener('input', () => {
+      weightValue.textContent = `${weightSlider.value} kg`;
+      calculateCalories();
+    });
+
+    modeSelect.addEventListener('change', () => {
+      modeLabel.textContent = modeSelect.options[modeSelect.selectedIndex].text;
+    });
+
+    soundSelect.addEventListener('change', () => {
+      soundValue.textContent = soundSelect.options[soundSelect.selectedIndex].text;
+      playBeep(true);
+    });
+
+    bpmSlider.addEventListener('input', () => {
+      bpmValue.textContent = `${bpmSlider.value} BPM`;
+
+      if (running) {
+        stopExercise();
+        startExercise();
       }
-    );
-
-    weightSlider.addEventListener(
-      'input',
-      () => {
-
-        weightValue.textContent =
-          `${weightSlider.value} kg`;
-
-        calculateCalories();
-      }
-    );
-
-    modeSelect.addEventListener(
-      'change',
-      () => {
-
-        modeLabel.textContent =
-          modeSelect.options[
-            modeSelect.selectedIndex
-          ].text;
-      }
-    );
-
-    soundSelect.addEventListener(
-      'change',
-      () => {
-
-        soundValue.textContent =
-          soundSelect.options[
-            soundSelect.selectedIndex
-          ].text;
-
-        playBeep(true);
-      }
-    );
-
-    darkBtn.addEventListener(
-      'click',
-      () => {
-
-        document.body.classList.toggle('dark');
-
-        const card =
-          document.querySelector('.card');
-
-        const boxes =
-          document.querySelectorAll(
-            '.step-box, .info-box'
-          );
-
-        if (
-          document.body.classList.contains(
-            'dark'
-          )
-        ) {
-
-          document.body.style.background =
-            '#111';
-
-          card.style.background = '#222';
-
-          card.style.color = '#fff';
-
-          boxes.forEach(box => {
-
-            box.style.background = '#333';
-
-            box.style.color = '#fff';
-          });
-
-        } else {
-
-          document.body.style.background =
-            '#f3f4f6';
-
-          card.style.background = '#fff';
-
-          card.style.color = '#000';
-
-          boxes.forEach(box => {
-
-            box.style.background =
-              '#f9fafb';
-
-            box.style.color = '#000';
-          });
-        }
-      }
-    );
+    });
   </script>
 </body>
 </html>
